@@ -1,0 +1,32 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Streamlit ---
+.streamlit/
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+
+# --- PDF temp files ---
+temp.pdf
+
+# --- Logs ---
+*.log
+
+# --- Build / cache ---
+build/
+dist/
+*.egg-info/
+.cache/
