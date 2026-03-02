@@ -38,12 +38,12 @@ def test_scanned_pdf_error_message_is_user_friendly():
 
 def test_valid_pdf_returns_string():
     """A real text-layer PDF returns a non-empty string longer than 100 chars."""
+    # If reportlab is not available, skip with a note — must be called before import
+    pytest.importorskip("reportlab", reason="reportlab not installed — skipping valid PDF test")
+
     # Build a minimal but real text-layer PDF using pypdf's writer
     from pypdf import PdfWriter
     from reportlab.pdfgen import canvas as rl_canvas
-
-    # If reportlab is not available, skip with a note
-    pytest.importorskip("reportlab", reason="reportlab not installed — skipping valid PDF test")
 
     import io as _io
     buf = _io.BytesIO()
