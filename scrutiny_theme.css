@@ -1,0 +1,185 @@
+/* Scrutiny — Dark Professional Theme
+   Single consolidated dark theme with CSS custom properties.
+   Blue color system, IBM Plex Serif headings, JetBrains Mono numbers.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Custom Properties ────────────────────────────────────────────── */
+
+:root {
+  --bg-primary: #23272e;
+  --bg-secondary: #2d3642;
+  --bg-surface: rgba(30, 40, 60, 0.85);
+  --text-primary: #f5f7fa;
+  --text-secondary: #a0aec0;
+  --accent-blue: #2d8cf0;
+  --accent-blue-light: #5ba3f5;
+  --accent-blue-hover: #4a9df5;
+  --border-color: #3a4252;
+  --divider-color: #3a4252;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --font-heading: 'IBM Plex Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Mono', monospace;
+  --font-body: 'IBM Plex Serif', Georgia, serif;
+  --radius: 8px;
+  --shadow: 0 4px 16px rgba(10, 20, 40, 0.25);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+
+body, .stApp {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
+  font-family: var(--font-body) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Typography ───────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading) !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-primary) !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+
+.stButton > button,
+.stDownloadButton > button {
+  background: var(--accent-blue);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  border: none;
+  box-shadow: var(--shadow);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+  background: var(--accent-blue-hover);
+  box-shadow: 0 8px 24px rgba(45, 140, 240, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────── */
+
+.stTextInput > div > input,
+.stNumberInput > div > input,
+.stSelectbox > div > div,
+.stTextArea > div > textarea {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 1.08rem;
+  padding: 0.5em 1em;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.stTextInput > div > input:focus,
+.stNumberInput > div > input:focus,
+.stTextArea > div > textarea:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 2px 12px rgba(45, 140, 240, 0.1);
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────── */
+
+.stSidebar,
+[data-testid="stSidebar"] {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-right: 1px solid var(--border-color);
+}
+
+.stSidebar *,
+[data-testid="stSidebar"] * {
+  color: var(--text-primary) !important;
+}
+
+.stSidebar input,
+.stSidebar textarea,
+.stSidebar select,
+.stSidebar .stTextInput > div > input,
+.stSidebar .stNumberInput > div > input {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.stSidebar label,
+.stSidebar .stMarkdown,
+.stSidebar .stText,
+.stSidebar .stCaption {
+  color: var(--text-primary) !important;
+}
+
+/* ── Metrics ──────────────────────────────────────────────────────── */
+
+.stMetric {
+  background: var(--bg-surface);
+  color: var(--text-primary) !important;
+  border: none;
+  border-radius: var(--radius);
+  padding: 1em 1.5em;
+  margin-bottom: 1em;
+}
+
+/* ── Expanders ────────────────────────────────────────────────────── */
+
+.stExpander {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius);
+}
+
+/* ── Dividers ─────────────────────────────────────────────────────── */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--divider-color);
+  margin: 1.5em 0;
+}
+
+/* ── Text Overrides ───────────────────────────────────────────────── */
+
+.stMarkdown,
+.stText,
+.stCaption,
+.stInfo,
+.stWarning,
+.stSuccess {
+  color: var(--text-primary) !important;
+}
+
+/* ── Alerts ───────────────────────────────────────────────────────── */
+
+.stInfo {
+  border-radius: var(--radius);
+}
+
+.stWarning {
+  border-radius: var(--radius);
+}
+
+.stSuccess {
+  border-radius: var(--radius);
+}
+
+/* ── File Uploader ─────────────────────────────────────────────────── */
+
+[data-testid="stFileUploadDropzone"] {
+  background: var(--bg-surface) !important;
+  border: 2px dashed var(--border-color) !important;
+  border-radius: var(--radius);
+}
+
+/* ── Hide Streamlit Footer ────────────────────────────────────────── */
+
+footer { display: none !important; }
