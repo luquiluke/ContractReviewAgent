@@ -9,6 +9,8 @@ import io
 
 from pypdf import PdfReader
 
+from app.pii import strip_pii
+
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """
@@ -38,3 +40,8 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
             "Please upload a PDF with a text layer."
         )
     return text
+
+
+def extract_and_strip(pdf_bytes: bytes) -> tuple[str, dict[str, int]]:
+    text = extract_text_from_pdf(pdf_bytes)
+    return strip_pii(text)
