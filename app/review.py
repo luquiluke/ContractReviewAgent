@@ -10,6 +10,15 @@ import io
 from pypdf import PdfReader
 
 from app.pii import strip_pii
+from app.contracts import CONTRACT_QUESTIONS
+
+try:
+    from langchain_openai import ChatOpenAI
+    _llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    _LANGCHAIN_AVAILABLE = True
+except (ImportError, Exception):
+    _LANGCHAIN_AVAILABLE = False
+    _llm = None
 
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
@@ -45,3 +54,38 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
 def extract_and_strip(pdf_bytes: bytes) -> tuple[str, dict[str, int]]:
     text = extract_text_from_pdf(pdf_bytes)
     return strip_pii(text)
+
+
+def _build_prompt(contract_text: str, section: str, question: str) -> str:
+    return (
+        f"You are a contract analyst. Review the following contract and answer ONE question.\n\n"
+        f"CONTRACT:\n{contract_text}\n\n"
+        f"QUESTION: {question}\n\n"
+        f"Respond in 2-4 plain-English sentences. "
+        f"If the contract does not address this topic, say exactly: "
+        f"'This contract does not address {section}.' "
+        f"Do not speculate or infer from general knowledge."
+    )
+
+
+def analyze_contract(
+    contract_text: str,
+    contract_type: str,
+    progress_callback=None,
+) -> list[dict]:
+    if not _LANGCHAIN_AVAILABLE:
+        raise RuntimeError(
+            "LangChain is not installed. Install langchain-openai to use analysis."
+        )
+    sections = CONTRACT_QUESTIONS[contract_type]
+    total = len(sections)
+    results = []
+    for i, section_info in enumerate(sections):
+        section = section_info["section"]
+        question = section_info["question"]
+        prompt = _build_prompt(contract_text, section, question)
+        summary = _llm.invoke(prompt).content
+        results.append({"section": section, "summary": summary})
+        if progress_callback is not None:
+            progress_callback(i, total, section)
+    return results

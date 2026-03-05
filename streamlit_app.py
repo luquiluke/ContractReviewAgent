@@ -3,7 +3,8 @@ from pathlib import Path
 
 import streamlit as st
 
-from app.review import extract_text_from_pdf, extract_and_strip
+from app.review import extract_text_from_pdf, extract_and_strip, _build_prompt, _llm
+from app.contracts import CONTRACT_QUESTIONS
 
 _PII_LABELS = {
     "PERSON": "name",
@@ -58,6 +59,76 @@ if uploaded_file is not None:
         st.session_state["pii_manifest"] = pii_manifest
     except ValueError as e:
         st.error(str(e))
+
+# ── Main: Analysis ────────────────────────────────────────────────────
+if st.session_state.get("contract_text"):
+
+    def _clear_analysis():
+        st.session_state.pop("analysis_results", None)
+        st.session_state.pop("analysis_contract_type", None)
+
+    contract_type = st.selectbox(
+        "Contract type",
+        options=list(CONTRACT_QUESTIONS.keys()),
+        key="contract_type",
+        on_change=_clear_analysis,
+    )
+
+    has_api_key = bool(os.environ.get("OPENAI_API_KEY", "").strip())
+    is_analyzing = st.session_state.get("_analyzing", False)
+
+    if st.button("Review contract", disabled=not has_api_key or is_analyzing):
+        st.session_state["_analyzing"] = True
+        try:
+            sections = CONTRACT_QUESTIONS[contract_type]
+            placeholders = [st.empty() for _ in sections]
+            progress_bar = st.progress(0)
+
+            results = []
+
+            for i, section_info in enumerate(sections):
+                section_name = section_info["section"]
+                progress_bar.progress(
+                    i / len(sections),
+                    text=f"Analyzing section {i + 1} of {len(sections)}: {section_name}...",
+                )
+                prompt_text = st.session_state["contract_text"]
+                raw_summary = _llm.invoke(
+                    _build_prompt(prompt_text, section_name, section_info["question"])
+                ).content
+                results.append({"section": section_name, "summary": raw_summary})
+
+                with placeholders[i].container():
+                    st.markdown(f"**{section_name}**")
+                    if raw_summary.lower().startswith("this contract does not address"):
+                        st.caption(raw_summary)
+                    else:
+                        st.write(raw_summary)
+                progress_bar.progress(
+                    (i + 1) / len(sections),
+                    text=f"Analyzing section {i + 1} of {len(sections)}: {section_name}...",
+                )
+
+            progress_bar.empty()
+            st.session_state["analysis_results"] = results
+            st.session_state["analysis_contract_type"] = contract_type
+        except Exception as e:
+            st.error(f"Analysis failed: {e}")
+        finally:
+            st.session_state["_analyzing"] = False
+
+    elif (
+        st.session_state.get("analysis_results")
+        and st.session_state.get("analysis_contract_type") == contract_type
+    ):
+        results = st.session_state["analysis_results"]
+        for row in results:
+            st.markdown(f"**{row['section']}**")
+            if row["summary"].lower().startswith("this contract does not address"):
+                st.caption(row["summary"])
+            else:
+                st.write(row["summary"])
+            st.divider()
 
 # ── Main: Legal disclaimer (always visible — not inside any conditional) ──
 st.divider()
