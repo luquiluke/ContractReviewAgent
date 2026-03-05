@@ -5,6 +5,7 @@ import streamlit as st
 
 from app.review import extract_text_from_pdf, extract_and_strip, _build_prompt, _llm
 from app.contracts import CONTRACT_QUESTIONS
+from app.exporters import build_excel, build_pdf
 
 _PII_LABELS = {
     "PERSON": "name",
@@ -112,6 +113,22 @@ if st.session_state.get("contract_text"):
             progress_bar.empty()
             st.session_state["analysis_results"] = results
             st.session_state["analysis_contract_type"] = contract_type
+            st.divider()
+            col1, col2 = st.columns(2)
+            with col1:
+                st.download_button(
+                    label="Download Excel",
+                    data=build_excel(results),
+                    file_name="scrutiny-review.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            with col2:
+                st.download_button(
+                    label="Download PDF",
+                    data=build_pdf(results, contract_type),
+                    file_name="scrutiny-review.pdf",
+                    mime="application/pdf",
+                )
         except Exception as e:
             st.error(f"Analysis failed: {e}")
         finally:
@@ -129,6 +146,21 @@ if st.session_state.get("contract_text"):
             else:
                 st.write(row["summary"])
             st.divider()
+        col1, col2 = st.columns(2)
+        with col1:
+            st.download_button(
+                label="Download Excel",
+                data=build_excel(results),
+                file_name="scrutiny-review.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        with col2:
+            st.download_button(
+                label="Download PDF",
+                data=build_pdf(results, contract_type),
+                file_name="scrutiny-review.pdf",
+                mime="application/pdf",
+            )
 
 # ── Main: Legal disclaimer (always visible — not inside any conditional) ──
 st.divider()
