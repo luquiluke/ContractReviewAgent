@@ -1,11 +1,17 @@
 import os
+import re
 from pathlib import Path
 
 import streamlit as st
 
-from app.review import extract_text_from_pdf, extract_and_strip, _build_prompt, _llm
+from app.review import extract_text_from_pdf, extract_and_strip, _build_prompt, _get_llm
 from app.contracts import CONTRACT_QUESTIONS
 from app.exporters import build_excel, build_pdf
+
+def _safe(text: str) -> str:
+    """Escape dollar signs so Streamlit doesn't render them as LaTeX math."""
+    return text.replace("$", r"\$")
+
 
 _PII_LABELS = {
     "PERSON": "name",
@@ -94,17 +100,18 @@ if st.session_state.get("contract_text"):
                     text=f"Analyzing section {i + 1} of {len(sections)}: {section_name}...",
                 )
                 prompt_text = st.session_state["contract_text"]
-                raw_summary = _llm.invoke(
+                raw_summary = _get_llm().invoke(
                     _build_prompt(prompt_text, section_name, section_info["question"])
                 ).content
+                raw_summary = re.sub(r"`([^`]*)`", r"\1", raw_summary)
                 results.append({"section": section_name, "summary": raw_summary})
 
                 with placeholders[i].container():
                     st.markdown(f"**{section_name}**")
                     if raw_summary.lower().startswith("this contract does not address"):
-                        st.caption(raw_summary)
+                        st.caption(_safe(raw_summary))
                     else:
-                        st.write(raw_summary)
+                        st.write(_safe(raw_summary))
                 progress_bar.progress(
                     (i + 1) / len(sections),
                     text=f"Analyzing section {i + 1} of {len(sections)}: {section_name}...",
@@ -142,9 +149,9 @@ if st.session_state.get("contract_text"):
         for row in results:
             st.markdown(f"**{row['section']}**")
             if row["summary"].lower().startswith("this contract does not address"):
-                st.caption(row["summary"])
+                st.caption(_safe(row["summary"]))
             else:
-                st.write(row["summary"])
+                st.write(_safe(row["summary"]))
             st.divider()
         col1, col2 = st.columns(2)
         with col1:

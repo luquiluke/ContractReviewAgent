@@ -70,7 +70,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .stTextInput > div > input,
 .stNumberInput > div > input,
-.stSelectbox > div > div,
 .stTextArea > div > textarea {
   background: var(--bg-primary) !important;
   color: var(--text-primary) !important;
@@ -80,6 +79,18 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.08rem;
   padding: 0.5em 1em;
   transition: border 0.2s, box-shadow 0.2s;
+}
+
+.stSelectbox > div > div {
+  background: var(--bg-primary) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: var(--radius);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+/* Selectbox selected value text */
+[data-testid="stSelectbox"] * {
+  color: #f5f7fa !important;
 }
 
 .stTextInput > div > input:focus,
@@ -178,6 +189,13 @@ hr {
   background: var(--bg-surface) !important;
   border: 2px dashed var(--border-color) !important;
   border-radius: var(--radius);
+}
+
+/* ── Inline code ──────────────────────────────────────────────────── */
+
+code {
+  color: var(--text-primary) !important;
+  background: var(--bg-secondary) !important;
 }
 
 /* ── Hide Streamlit Footer ────────────────────────────────────────── */

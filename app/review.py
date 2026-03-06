@@ -14,11 +14,19 @@ from app.contracts import CONTRACT_QUESTIONS
 
 try:
     from langchain_openai import ChatOpenAI
-    _llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     _LANGCHAIN_AVAILABLE = True
-except (ImportError, Exception):
+except ImportError:
     _LANGCHAIN_AVAILABLE = False
-    _llm = None
+
+def _get_llm():
+    if not _LANGCHAIN_AVAILABLE:
+        return None
+    import os
+    return ChatOpenAI(
+        model="gpt-4o-mini",
+        temperature=0,
+        api_key=os.environ.get("OPENAI_API_KEY", ""),
+    )
 
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
@@ -62,6 +70,7 @@ def _build_prompt(contract_text: str, section: str, question: str) -> str:
         f"CONTRACT:\n{contract_text}\n\n"
         f"QUESTION: {question}\n\n"
         f"Respond in 2-4 plain-English sentences. "
+        f"Do not use markdown, backticks, bold, or any special formatting — plain text only. "
         f"If the contract does not address this topic, say exactly: "
         f"'This contract does not address {section}.' "
         f"Do not speculate or infer from general knowledge."
@@ -84,7 +93,7 @@ def analyze_contract(
         section = section_info["section"]
         question = section_info["question"]
         prompt = _build_prompt(contract_text, section, question)
-        summary = _llm.invoke(prompt).content
+        summary = _get_llm().invoke(prompt).content
         results.append({"section": section, "summary": summary})
         if progress_callback is not None:
             progress_callback(i, total, section)

@@ -30,3 +30,11 @@ build/
 dist/
 *.egg-info/
 .cache/
+
+# --- Planning (local only, not committed) ---
+.planning/config.json
+.planning/research/
+.planning/REQUIREMENTS.md
+.planning/ROADMAP.md
+.planning/STATE.md
+.planning/phases/
