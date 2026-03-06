@@ -1,0 +1,15 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.git/
+.gitignore
+.planning/
+.claude/
+temp.pdf
+scrutiny-review.pdf
+node_modules/
