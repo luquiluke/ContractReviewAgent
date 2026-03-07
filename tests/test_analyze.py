@@ -12,9 +12,10 @@ def _mock_response(text="The contract provides standard terms."):
 
 
 def test_analyze_returns_results():
+    mock_llm = MagicMock()
+    mock_llm.invoke.return_value = _mock_response()
     with patch("app.review._LANGCHAIN_AVAILABLE", True), \
-         patch("app.review._llm") as mock_llm:
-        mock_llm.invoke.return_value = _mock_response()
+         patch("app.review._get_llm", return_value=mock_llm):
         results = analyze_contract("sample contract text", "Employment Contract")
     assert isinstance(results, list)
     assert len(results) == 5
@@ -25,9 +26,10 @@ def test_analyze_returns_results():
 
 def test_not_addressed_passthrough():
     not_addressed = "This contract does not address Termination Conditions."
+    mock_llm = MagicMock()
+    mock_llm.invoke.return_value = _mock_response(not_addressed)
     with patch("app.review._LANGCHAIN_AVAILABLE", True), \
-         patch("app.review._llm") as mock_llm:
-        mock_llm.invoke.return_value = _mock_response(not_addressed)
+         patch("app.review._get_llm", return_value=mock_llm):
         results = analyze_contract("sample contract text", "Employment Contract")
     assert results[0]["summary"] == not_addressed
 
@@ -38,9 +40,10 @@ def test_progress_callback_called():
     def cb(idx, total, name):
         calls.append((idx, total, name))
 
+    mock_llm = MagicMock()
+    mock_llm.invoke.return_value = _mock_response()
     with patch("app.review._LANGCHAIN_AVAILABLE", True), \
-         patch("app.review._llm") as mock_llm:
-        mock_llm.invoke.return_value = _mock_response()
+         patch("app.review._get_llm", return_value=mock_llm):
         analyze_contract("text", "Employment Contract", progress_callback=cb)
 
     assert len(calls) == 5
